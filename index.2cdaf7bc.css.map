@@ -1,0 +1,1 @@
+{"mappings":"AAAA;;;;AAIA;;;;AAIA","sources":["src/style.css"],"sourcesContent":["table {\n    margin: 20px;\n}\n\n#initial td {\n    min-width: 40px;\n}\n\n#gammaChart {\n    position: fixed;\n    background-color: black;\n    right: 0px;\n    bottom: 0px;\n}"],"names":[],"version":3,"file":"index.2cdaf7bc.css.map","sourceRoot":"/__parcel_source_root/"}
