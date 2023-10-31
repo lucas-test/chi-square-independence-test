@@ -1,0 +1,16 @@
+table {
+  margin: 20px;
+}
+
+#initial td {
+  min-width: 40px;
+}
+
+#gammaChart {
+  background-color: #000;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+}
+
+/*# sourceMappingURL=index.2cdaf7bc.css.map */

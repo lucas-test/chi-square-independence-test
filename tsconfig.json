@@ -1,0 +1,13 @@
+{
+     "compilerOptions": {
+       "target": "ES5",
+       "module": "ESNext",
+       "strict": true,
+       "esModuleInterop": true,
+       "moduleResolution": "Node",
+      //  "resolveJsonModule": true,
+       "outDir": "dist"
+     },
+     "include": ["src/**/*"],
+     "exclude": ["node_modules"]
+   }

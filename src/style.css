@@ -1,0 +1,14 @@
+table {
+    margin: 20px;
+}
+
+#initial td {
+    min-width: 40px;
+}
+
+#gammaChart {
+    position: fixed;
+    background-color: black;
+    right: 0px;
+    bottom: 0px;
+}
