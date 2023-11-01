@@ -6,6 +6,7 @@
        "esModuleInterop": true,
        "moduleResolution": "Node",
       //  "resolveJsonModule": true,
+      // "baseUrl": ".",
        "outDir": "dist"
      },
      "include": ["src/**/*"],
