@@ -1,0 +1,23 @@
+{
+  "name": "chi2",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "parcel src/index.html",
+    "dev": "parcel src/index.html --port 3070",
+    "build": "parcel build src/index.html --public-url .",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "gh-pages -d dist"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "gh-pages": "^6.0.0",
+    "parcel": "^2.10.1"
+  },
+  "dependencies": {
+    "@stdlib/stats-base-dists-gamma-cdf": "^0.1.0",
+    "chart.js": "^3.9.1",
+    "chartjs-plugin-annotation": "^2.2.1"
+  }
+}
