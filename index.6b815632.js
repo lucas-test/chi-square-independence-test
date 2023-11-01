@@ -586,32 +586,34 @@ function createTable(data, lineNames, columnNames, integerValues) {
     const numRows = data.length;
     const numCols = data[0].length;
     const tableElement = document.createElement("table");
-    const headerRow = document.createElement("tr");
-    // Create the empty cell in the top-left corner
-    const emptyHeaderCell = document.createElement("th");
-    headerRow.appendChild(emptyHeaderCell);
     // Create the header cells for the columns
-    for(let j = 0; j < numCols; j++){
-        const headerCell = document.createElement("th");
-        headerCell.contentEditable = "true";
-        headerCell.oninput = ()=>{
-            if (headerCell.textContent != null) {
-                columnNames[j] = headerCell.textContent;
-                computeEveryTables(data, lineNames, columnNames);
-            }
-        };
-        headerCell.textContent = columnNames[j];
-        headerRow.appendChild(headerCell);
+    if (columnNames.length > 0) {
+        const headerRow = document.createElement("tr");
+        // Create the empty cell in the top-left corner
+        const emptyHeaderCell = document.createElement("th");
+        headerRow.appendChild(emptyHeaderCell);
+        for(let j = 0; j < numCols; j++){
+            const headerCell = document.createElement("th");
+            headerCell.contentEditable = "true";
+            headerCell.oninput = ()=>{
+                if (headerCell.textContent != null) {
+                    columnNames[j] = headerCell.textContent;
+                    computeEveryTables(data, lineNames, columnNames);
+                }
+            };
+            headerCell.textContent = columnNames[j];
+            headerRow.appendChild(headerCell);
+        }
+        if (integerValues) {
+            const headerCell = document.createElement("th");
+            headerCell.textContent = "+";
+            headerCell.onclick = ()=>{
+                addColumn(data, lineNames, columnNames);
+            };
+            headerRow.appendChild(headerCell);
+        }
+        tableElement.appendChild(headerRow);
     }
-    if (integerValues) {
-        const headerCell = document.createElement("th");
-        headerCell.textContent = "+";
-        headerCell.onclick = ()=>{
-            addColumn(data, lineNames, columnNames);
-        };
-        headerRow.appendChild(headerCell);
-    }
-    tableElement.appendChild(headerRow);
     // Create the table rows
     for(let i = 0; i < numRows; i++){
         const row = document.createElement("tr");
@@ -708,14 +710,17 @@ function computeEveryTables(data, lineNames, colNames) {
     if (divElement) divElement.remove();
     divElement = document.getElementById("gammaChart");
     if (divElement) divElement.remove();
+    const interDiv = document.getElementById("inter");
+    const resultsDiv = document.getElementById("results");
+    if (interDiv == null || resultsDiv == null) return;
     const indepData = computeIndepData(data);
     const tableIndep = createTable(indepData, lineNames, colNames, false);
     tableIndep.id = "indep";
-    document.body.appendChild(tableIndep);
+    interDiv.appendChild(tableIndep);
     const diffData = computeDiffData(data, indepData);
     const tableDiff = createTable(diffData, lineNames, colNames, false);
     tableDiff.id = "diff";
-    document.body.appendChild(tableDiff);
+    interDiv.appendChild(tableDiff);
     const chi2 = computeTotalSum(diffData);
     const dof = (data.length - 1) * (data[0].length - 1);
     const cramer = Math.sqrt(chi2 / (computeTotalSum(data) * dof));
@@ -730,44 +735,46 @@ function computeEveryTables(data, lineNames, colNames) {
             chi2
         ],
         [
+            pValue
+        ],
+        [
             kComp
         ],
         [
             cramer
         ],
         [
-            pValue
-        ],
-        [
             dof
         ]
     ];
     const tableFinal = createTable(finalData, [
-        "Khi2 calcul\xe9",
-        "Khi2 th\xe9orique 0.05",
-        "Cramer",
+        "\u03C7\xb2 calcul\xe9",
         "pValue",
-        "ddl"
-    ], [
-        "",
-        ""
-    ], false);
+        "\u03C7\xb2 th\xe9orique 0.05",
+        "Cramer",
+        "degr\xe9s de libert\xe9s"
+    ], [], false);
     tableFinal.id = "final";
-    document.body.appendChild(tableFinal);
+    resultsDiv.appendChild(tableFinal);
     const para = document.createElement("p");
     para.id = "resultats";
-    if (chi2 > kComp) para.innerHTML = "Les variables sont <b>ind\xe9pendantes</b>.";
-    else para.innerHTML = "Les variables sont <b>li\xe9es</b>.";
-    document.body.appendChild(para);
+    if (chi2 < kComp) para.innerHTML = `Comme <span class="compute-color"> ${chi2.toFixed(2)}</span> < <span class="theoric-color">${kComp.toFixed(2)}</span>, les variables sont <b>ind\xe9pendantes</b>.`;
+    else para.innerHTML = `Comme <span class="theoric-color">${kComp.toFixed(2)}</span> < <span class="compute-color"> ${chi2.toFixed(2)}</span>, les variables sont <b>li\xe9es</b>.`;
+    resultsDiv.appendChild(para);
     const cells = document.querySelectorAll("#final td");
     cells.forEach((cell)=>{
         const tcell = cell;
         if (tcell.textContent === null) return;
+        const i = tcell.parentNode.rowIndex;
+        if (i == 0 || i == 1) tcell.classList.add("compute-color");
+        if (i == 2) tcell.classList.add("theoric-color");
+    // Old
+    /*
         const value = parseFloat(tcell.textContent);
         const redValue = Math.floor(value * 255);
-        const greenValue = Math.floor((1 - value) * 255);
+        const greenValue = Math.floor((1-value) * 255);
         tcell.style.backgroundColor = `rgb(${redValue}, ${greenValue}, 0)`;
-    });
+        */ });
     const dataCells = document.querySelectorAll("#initial td");
     dataCells.forEach((cell)=>{
         const tcell = cell;
@@ -782,26 +789,15 @@ function computeEveryTables(data, lineNames, colNames) {
     const gammaChart = document.createElement("canvas");
     gammaChart.width = 600;
     gammaChart.height = 300;
-    document.body.appendChild(gammaChart);
+    resultsDiv.appendChild(gammaChart);
     gammaChart.id = "gammaChart";
     const gammaValues = computeGammaValues(dof, 2 * kComp);
     const ctx = gammaChart.getContext("2d");
     if (ctx == null) return;
-    const options = {
-        plugins: {
-            annotation: {
-                annotations: {
-                    line1: {
-                        type: "line",
-                        xMin: 5,
-                        xMax: 5,
-                        borderColor: "rgb(255, 99, 132)",
-                        borderWidth: 2
-                    }
-                }
-            }
-        }
-    };
+    const colorFunction = "#009879";
+    const colorTh = "#007BFF";
+    const colorCompute = "#DC3545";
+    const colorLabel = "white";
     const chart = new (0, _chartJs.Chart)(ctx, {
         type: "line",
         data: {
@@ -809,7 +805,7 @@ function computeEveryTables(data, lineNames, colNames) {
                 {
                     label: "cos",
                     data: gammaValues,
-                    borderColor: "rgb(244,244,244)",
+                    borderColor: colorFunction,
                     fill: false,
                     pointRadius: 0
                 }
@@ -832,49 +828,100 @@ function computeEveryTables(data, lineNames, colNames) {
                 }
             },
             plugins: {
+                legend: {
+                    display: false
+                },
                 annotation: {
                     annotations: {
+                        lineThreshold: {
+                            type: "line",
+                            yMin: 0.95,
+                            xMax: kComp,
+                            yMax: 0.95,
+                            borderColor: colorTh,
+                            borderWidth: 4
+                        },
+                        labelThreshold: {
+                            type: "label",
+                            xValue: 0.3,
+                            yValue: 0.95,
+                            content: [
+                                "1 - 0.05"
+                            ],
+                            backgroundColor: colorTh,
+                            color: colorLabel,
+                            font: {
+                                weight: "bold",
+                                size: 12
+                            }
+                        },
                         line1: {
                             type: "line",
                             xMin: kComp,
                             xMax: kComp,
                             yMax: 0.95,
-                            borderColor: "rgb(0, 0, 255)",
+                            borderColor: colorTh,
                             borderWidth: 4
                         },
                         label1: {
                             type: "label",
                             xValue: kComp,
-                            yValue: 0.5,
+                            yValue: 0.1,
                             content: [
-                                "Khi2 th\xe9orique"
+                                "Khi2 th\xe9orique",
+                                kComp.toFixed(2)
                             ],
-                            backgroundColor: "rgba(0,0,255)",
-                            color: "white",
+                            backgroundColor: colorTh,
+                            color: colorLabel,
                             font: {
+                                weight: "bold",
                                 size: 12
                             }
                         },
-                        label2: {
-                            type: "label",
-                            xValue: chi2 + 0.2,
-                            yValue: 0.5,
-                            content: [
-                                "Khi2"
-                            ],
-                            backgroundColor: "rgba(255,0,0)",
-                            color: "white",
-                            font: {
-                                size: 12
-                            }
-                        },
-                        line2: {
+                        lineChi2: {
                             type: "line",
                             xMin: chi2,
                             xMax: chi2,
                             yMax: 1 - pValue,
-                            borderColor: "rgb(255, 0, 0)",
+                            borderColor: colorCompute,
                             borderWidth: 4
+                        },
+                        labelChi2: {
+                            type: "label",
+                            xValue: chi2,
+                            yValue: 0.1,
+                            content: [
+                                "Khi2",
+                                chi2.toFixed(2)
+                            ],
+                            backgroundColor: colorCompute,
+                            color: colorLabel,
+                            font: {
+                                weight: "bold",
+                                size: 12
+                            }
+                        },
+                        linepValue: {
+                            type: "line",
+                            yMin: 1 - pValue,
+                            xMax: chi2,
+                            yMax: 1 - pValue,
+                            borderColor: colorCompute,
+                            borderWidth: 4
+                        },
+                        labelpValue: {
+                            type: "label",
+                            xValue: 0.3,
+                            yValue: 1 - pValue,
+                            content: [
+                                `1 - ${pValue.toFixed(2)}`
+                            ],
+                            backgroundColor: colorCompute,
+                            color: colorLabel,
+                            font: {
+                                weight: "bold",
+                                size: 12
+                            }
                         }
                     }
                 }
@@ -911,7 +958,9 @@ function resetDataTable(data, lineNames, colNames) {
     if (divElement) divElement.remove();
     const tableElement = createTable(data, lineNames, colNames, true);
     tableElement.id = "initial";
-    document.body.appendChild(tableElement);
+    const dataDiv = document.getElementById("data");
+    if (dataDiv == null) return;
+    dataDiv.appendChild(tableElement);
     const initialCells = document.querySelectorAll("#initial td");
     initialCells.forEach((cell)=>{
         const tcell = cell;
