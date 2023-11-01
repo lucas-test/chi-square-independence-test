@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@stdlib/stats-base-dists-gamma-cdf": "^0.1.0",
-    "chart.js": "^4.4.0",
-    "chartjs-plugin-annotation": "^3.0.1"
+    "chart.js": "^3.9.1",
+    "chartjs-plugin-annotation": "^2.2.1"
   }
 }

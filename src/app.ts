@@ -2,6 +2,8 @@ import cdf from "@stdlib/stats-base-dists-gamma-cdf";
 import { Chart, registerables } from "chart.js";
 import annotationPlugin from 'chartjs-plugin-annotation';
 
+Chart.register(...registerables);
+Chart.register(annotationPlugin);
 
 function createTable(data: Array<Array<number>>, lineNames: string[], columnNames: string[], integerValues: boolean): HTMLTableElement{
     // Define the table size
@@ -519,9 +521,9 @@ function resetDataTable(data: number[][], lineNames: string[], colNames: string[
 
 
 function setup(){
+    console.log("testouikc")
 
-    Chart.register(...registerables);
-    Chart.register(annotationPlugin);
+
 
     const lineNames = ["a", "b","c","d"];
     const colNames =  ["A", "B", "C", "D"];
